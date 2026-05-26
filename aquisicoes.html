@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Novas Aquisições | Biblioteca PUSP-SC</title>
+<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+<div class="page-wrap">
+
+  <a href="index.html" class="back-btn">
+    <i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar
+  </a>
+
+  <header class="header">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="8" y="6" width="32" height="36" rx="3"/>
+        <path d="M15 14h18M15 20h18M15 26h12"/>
+        <path d="M24 32v6M20 38h8"/>
+      </svg>
+    </div>
+    <p class="inst-label">Biblioteca PUSP-SC</p>
+    <h1 class="page-title">🆕 Novas Aquisições</h1>
+    <p class="page-subtitle">Novidades no acervo</p>
+    <div class="accent-line"></div>
+  </header>
+
+  <div class="links" id="items-list"></div>
+
+  <button class="admin-toggle" onclick="toggleAdmin()">⚙️ Área administrativa</button>
+
+  <div class="admin-panel" id="admin-panel">
+    <div id="pw-screen" class="pw-screen">
+      <p>Digite a senha para acessar o painel de edição</p>
+      <input type="password" class="pw-input" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter') checkPw()">
+      <br>
+      <button class="pw-btn" onclick="checkPw()">Entrar</button>
+      <p class="pw-error" id="pw-error">Senha incorreta.</p>
+    </div>
+    <div id="edit-screen" style="display:none">
+      <div class="admin-title"><i class="ti ti-edit" aria-hidden="true"></i> Editar Novas Aquisições</div>
+      <div id="edit-items"></div>
+      <button class="add-btn" onclick="addItem()">+ Adicionar item</button>
+      <button class="save-btn" onclick="saveItems()">Salvar alterações</button>
+      <p class="save-msg" id="save-msg">✓ Salvo com sucesso!</p>
+    </div>
+  </div>
+
+  <footer class="footer" style="margin-top:2rem">
+    Biblioteca da PUSP-SC · Universidade de São Paulo · São Carlos
+  </footer>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'bib_aquisicoes';
+const PAGE_PW = 'biblioteca2024';
+
+const DEFAULT_ITEMS = [
+  {
+    title: 'Novas Aquisições — Agosto a Dezembro 2025',
+    desc: 'Confira os títulos recém chegados ao acervo da Biblioteca da PUSP-SC no segundo semestre de 2025.',
+    url: 'http://biblioteca.puspsc.usp.br/index.php/2026/02/10/novas-aquisicoes-2025-agosto-dezembro/'
+  }
+];
+
+const ICON_COLORS = ['ci-green','ci-blue','ci-teal','ci-gold','ci-coral','ci-purple'];
+
+function loadItems() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  return saved ? JSON.parse(saved) : DEFAULT_ITEMS;
+}
+
+function renderList() {
+  const items = loadItems();
+  const list = document.getElementById('items-list');
+  if (items.length === 0) {
+    list.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:14px;padding:2rem 0">Nenhuma aquisição disponível no momento.</p>';
+    return;
+  }
+  list.innerHTML = items.map((item, i) => `
+    <a href="${item.url}" class="link-card${i===0?' featured':''}" target="_blank" rel="noopener">
+      <div class="card-icon ${ICON_COLORS[i % ICON_COLORS.length]}">
+        <i class="ti ti-book" aria-hidden="true"></i>
+      </div>
+      <div class="card-body">
+        <div class="card-title">${item.title}</div>
+        <div class="card-desc">${item.desc}</div>
+      </div>
+      <i class="ti ti-arrow-right card-arrow" aria-hidden="true"></i>
+    </a>
+  `).join('');
+}
+
+function toggleAdmin() {
+  document.getElementById('admin-panel').classList.toggle('open');
+}
+
+function checkPw() {
+  if (document.getElementById('pw-input').value === PAGE_PW) {
+    document.getElementById('pw-screen').style.display = 'none';
+    document.getElementById('edit-screen').style.display = 'block';
+    renderEditItems();
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+  }
+}
+
+function renderEditItems() {
+  const items = loadItems();
+  document.getElementById('edit-items').innerHTML = items.map((item, i) => `
+    <div class="admin-item">
+      <div class="admin-item-header">
+        <span class="admin-item-num">Item ${i+1}</span>
+        <button class="del-btn" onclick="removeItem(${i})"><i class="ti ti-trash"></i></button>
+      </div>
+      <label class="admin-label">Título</label>
+      <input class="admin-input" id="t-title-${i}" value="${escHtml(item.title)}">
+      <label class="admin-label">Descrição</label>
+      <textarea class="admin-textarea" id="t-desc-${i}">${escHtml(item.desc)}</textarea>
+      <label class="admin-label">Link (URL)</label>
+      <input class="admin-input" id="t-url-${i}" value="${escHtml(item.url)}">
+    </div>
+  `).join('');
+}
+
+function escHtml(str) { return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function addItem() {
+  const items = loadItems();
+  items.push({ title: 'Nova aquisição', desc: 'Descrição breve', url: 'https://' });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  renderEditItems();
+}
+
+function removeItem(i) {
+  const items = loadItems();
+  items.splice(i, 1);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  renderEditItems(); renderList();
+}
+
+function saveItems() {
+  const items = loadItems();
+  const saved = items.map((_, i) => ({
+    title: document.getElementById(`t-title-${i}`).value,
+    desc: document.getElementById(`t-desc-${i}`).value,
+    url: document.getElementById(`t-url-${i}`).value
+  }));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+  renderList();
+  const msg = document.getElementById('save-msg');
+  msg.style.display = 'block';
+  setTimeout(() => msg.style.display = 'none', 3000);
+}
+
+renderList();
+</script>
+</body>
+</html>
