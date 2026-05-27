@@ -6,39 +6,152 @@
 <title>Biblioteca PUSP-SC | USP São Carlos</title>
 <link rel="stylesheet" href="shared.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  body { background: #f0f4f8; }
+
+  .hero {
+    text-align: center;
+    padding: 2.5rem 1rem 1.5rem;
+  }
+
+  .hero-logo-wrap {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 4px 24px rgba(30,95,163,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.4rem;
+    overflow: hidden;
+    border: 3px solid #fff;
+  }
+
+  .hero-logo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-title {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: #1E5FA3;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+    line-height: 1.1;
+  }
+
+  .hero-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0.6rem auto;
+  }
+  .hero-divider::before,
+  .hero-divider::after {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 2px;
+    background: #C8922A;
+    border-radius: 2px;
+  }
+  .hero-divider-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #C8922A;
+  }
+
+  .hero-inst {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1A1A1A;
+    margin-bottom: 2px;
+  }
+
+  .hero-campus {
+    font-size: 13px;
+    color: #5A5A5A;
+    margin-bottom: 0.6rem;
+  }
+
+  .hero-desc {
+    font-size: 13px;
+    color: #7A7A7A;
+    font-weight: 300;
+    max-width: 300px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* Card com logo no ícone */
+  .logo-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .logo-icon img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+  }
+  .logo-icon.abcd-icon {
+    background: #0e1f2e;
+  }
+  .logo-icon.abcd-icon img {
+    object-fit: contain;
+    padding: 4px;
+  }
+
+  /* Override link-card gap for logo icons */
+  .link-card { align-items: center; }
+</style>
 </head>
 <body>
-<div class="page-wrap">
+<div class="page-wrap" style="padding-top:0">
 
-  <header class="header">
-    <div class="logo-wrap" style="width:96px;height:96px;border:none;background:transparent;">
-      <img src="logo_puspsc.jpg" alt="Logo Biblioteca PUSP-SC" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:2.5px solid var(--usp-blue);">
+  <div class="hero">
+    <div class="hero-logo-wrap">
+      <img src="logo_puspsc.jpg" alt="Logo Biblioteca PUSP-SC">
     </div>
-    <p class="inst-label">USP São Carlos</p>
-    <h1 class="page-title">Biblioteca<br>PUSP-SC</h1>
-    <p class="page-subtitle">Prefeitura do Campus</p>
-    <div class="accent-line"></div>
-  </header>
+    <h1 class="hero-title">Biblioteca PUSP-SC</h1>
+    <div class="hero-divider"><div class="hero-divider-dot"></div></div>
+    <p class="hero-inst">Universidade de São Paulo</p>
+    <p class="hero-campus">Campus São Carlos</p>
+    <p class="hero-desc">Acesse rapidamente nossos principais serviços e recursos</p>
+  </div>
 
   <p class="section-label">Nossos canais</p>
   <div class="links">
     <a href="http://biblioteca.puspsc.usp.br/" class="link-card featured">
-      <div class="card-icon" style="background:#EBF2FA;overflow:hidden;padding:0;">
-        <img src="logo_puspsc.jpg" alt="Logo Biblioteca PUSP-SC" style="width:40px;height:40px;object-fit:cover;border-radius:8px;">
+      <div class="logo-icon">
+        <img src="logo_puspsc.jpg" alt="Logo Biblioteca PUSP-SC">
       </div>
       <div class="card-body">
         <div class="card-title">Site Oficial Biblioteca</div>
-        <div class="card-desc">biblioteca.puspsc.usp.br</div>
+        <div class="card-desc">Acesse o site da Biblioteca PUSP-SC</div>
       </div>
       <i class="ti ti-arrow-right card-arrow" aria-hidden="true"></i>
     </a>
     <a href="https://www.abcd.usp.br/" class="link-card">
-      <div class="card-icon" style="background:#0e1f2e;overflow:hidden;padding:0;">
-        <img src="logo_abcd.png" alt="Logo ABCD USP" style="width:40px;height:40px;object-fit:cover;border-radius:8px;">
+      <div class="logo-icon abcd-icon">
+        <img src="logo_abcd.png" alt="Logo ABCD USP">
       </div>
       <div class="card-body">
         <div class="card-title">Site Oficial ABCD</div>
-        <div class="card-desc">Agência de Bibliotecas e Coleções Digitais</div>
+        <div class="card-desc">Acesse o site oficial do ABCD</div>
       </div>
       <i class="ti ti-arrow-right card-arrow" aria-hidden="true"></i>
     </a>
