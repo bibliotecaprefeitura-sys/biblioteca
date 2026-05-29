@@ -26,25 +26,6 @@
 
   <div class="links" id="items-list"></div>
 
-  <button class="admin-toggle" onclick="toggleAdmin()">⚙️ Área administrativa</button>
-
-  <div class="admin-panel" id="admin-panel">
-    <div id="pw-screen" class="pw-screen">
-      <p>Digite a senha para acessar o painel de edição</p>
-      <input type="password" class="pw-input" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter') checkPw()">
-      <br>
-      <button class="pw-btn" onclick="checkPw()">Entrar</button>
-      <p class="pw-error" id="pw-error">Senha incorreta.</p>
-    </div>
-    <div id="edit-screen" style="display:none">
-      <div class="admin-title"><i class="ti ti-edit" aria-hidden="true"></i> Editar Novas Aquisições</div>
-      <div id="edit-items"></div>
-      <button class="add-btn" onclick="addItem()">+ Adicionar item</button>
-      <button class="save-btn" onclick="saveItems()">Salvar alterações</button>
-      <p class="save-msg" id="save-msg">✓ Salvo com sucesso!</p>
-    </div>
-  </div>
-
   <footer class="footer" style="margin-top:2rem">
     Biblioteca da PUSP-SC · Universidade de São Paulo · São Carlos
   </footer>
@@ -52,109 +33,67 @@
 </div>
 
 <script>
-const STORAGE_KEY = 'bib_aquisicoes';
-const PAGE_PW = 'biblioteca2024';
-
-const DEFAULT_ITEMS = [
-  {
-    title: 'Novas Aquisições — Agosto a Dezembro 2025',
-    desc: 'Confira os títulos recém chegados ao acervo da Biblioteca da PUSP-SC no segundo semestre de 2025.',
-    url: 'http://biblioteca.puspsc.usp.br/index.php/2026/02/10/novas-aquisicoes-2025-agosto-dezembro/'
-  }
-];
+const SHEET_ID = '1DMFrXCLhj_OoFkSRFQXv2yPt2VOsgonZjiszIRFYK24';
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
 const ICON_COLORS = ['ci-green','ci-blue','ci-teal','ci-gold','ci-coral','ci-purple'];
+const ICONS = ['ti-book','ti-notebook','ti-bookmark','ti-file-text'];
 
-function loadItems() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  return saved ? JSON.parse(saved) : DEFAULT_ITEMS;
+const CATEGORIA_PAGINA = 'novasaquisicoes'; 
+
+function parseCSV(text) {
+  let lines = []; let row = [""]; let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    let c = text[i]; let next = text[i+1];
+    if (c === '"') { if (inQuotes && next === '"') { row[row.length - 1] += '"'; i++; } else { inQuotes = !inQuotes; } }
+    else if (c === ',' && !inQuotes) { row.push(''); }
+    else if ((c === '\r' || c === '\n') && !inQuotes) { if (c === '\r' && next === '\n') { i++; } lines.push(row); row = ['']; }
+    else { row[row.length - 1] += c; }
+  }
+  if (row.length > 1 || row[0] !== '') lines.push(row); return lines;
 }
 
-function renderList() {
-  const items = loadItems();
+async function renderList() {
   const list = document.getElementById('items-list');
-  if (items.length === 0) {
-    list.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:14px;padding:2rem 0">Nenhuma aquisição disponível no momento.</p>';
-    return;
+  if (!list) return;
+  try {
+    const resposta = await fetch(SHEET_URL);
+    const texto = await resposta.text();
+    const linhas = parseCSV(texto);
+    let htmlFinal = ''; let contadorItem = 0;
+
+    for (let i = 1; i < linhas.length; i++) {
+      const cols = linhas[i]; if (cols.length < 5) continue;
+      const categoriaPlanilha = cols[0] ? cols[0].toLowerCase().trim() : '';
+      const titulo = cols[1] || ''; const autor = cols[2] || ''; const descricao = cols[3] || ''; const url = cols[4] || '';
+
+      if (categoriaPlanilha === CATEGORIA_PAGINA) {
+        const corIcone = ICON_COLORS[contadorItem % ICON_COLORS.length];
+        const classeIcone = ICONS[contadorItem % ICONS.length];
+        const classeDestaque = contadorItem === 0 ? ' featured' : '';
+
+        htmlFinal += `
+          <a href="${url.trim()}" class="link-card${classeDestaque}" target="_blank" rel="noopener">
+            <div class="card-icon ${corIcone}">
+              <i class="ti ${classeIcone}" aria-hidden="true"></i>
+            </div>
+            <div class="card-body">
+              <div class="card-title">${titulo}</div>
+              ${autor ? `<div class="card-author" style="font-size:12px; color:var(--text-muted); margin-bottom:4px;"><i class="ti ti-user" style="font-size:14px; vertical-align:middle;"></i> ${autor}</div>` : ''}
+              <div class="card-desc">${descricao}</div>
+            </div>
+            <i class="ti ti-arrow-right card-arrow" aria-hidden="true"></i>
+          </a>
+        `;
+        contadorItem++;
+      }
+    }
+    list.innerHTML = contadorItem > 0 ? htmlFinal : '<p style="text-align:center;color:var(--text-muted);font-size:14px;padding:2rem 0">Nenhuma nova aquisição disponível no momento.</p>';
+  } catch (erro) {
+    list.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:14px;padding:2rem 0">Erro ao carregar os dados em tempo real.</p>';
   }
-  list.innerHTML = items.map((item, i) => `
-    <a href="${item.url}" class="link-card${i===0?' featured':''}" target="_blank" rel="noopener">
-      <div class="card-icon ${ICON_COLORS[i % ICON_COLORS.length]}">
-        <i class="ti ti-book" aria-hidden="true"></i>
-      </div>
-      <div class="card-body">
-        <div class="card-title">${item.title}</div>
-        <div class="card-desc">${item.desc}</div>
-      </div>
-      <i class="ti ti-arrow-right card-arrow" aria-hidden="true"></i>
-    </a>
-  `).join('');
 }
-
-function toggleAdmin() {
-  document.getElementById('admin-panel').classList.toggle('open');
-}
-
-function checkPw() {
-  if (document.getElementById('pw-input').value === PAGE_PW) {
-    document.getElementById('pw-screen').style.display = 'none';
-    document.getElementById('edit-screen').style.display = 'block';
-    renderEditItems();
-  } else {
-    document.getElementById('pw-error').style.display = 'block';
-  }
-}
-
-function renderEditItems() {
-  const items = loadItems();
-  document.getElementById('edit-items').innerHTML = items.map((item, i) => `
-    <div class="admin-item">
-      <div class="admin-item-header">
-        <span class="admin-item-num">Item ${i+1}</span>
-        <button class="del-btn" onclick="removeItem(${i})"><i class="ti ti-trash"></i></button>
-      </div>
-      <label class="admin-label">Título</label>
-      <input class="admin-input" id="t-title-${i}" value="${escHtml(item.title)}">
-      <label class="admin-label">Descrição</label>
-      <textarea class="admin-textarea" id="t-desc-${i}">${escHtml(item.desc)}</textarea>
-      <label class="admin-label">Link (URL)</label>
-      <input class="admin-input" id="t-url-${i}" value="${escHtml(item.url)}">
-    </div>
-  `).join('');
-}
-
-function escHtml(str) { return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function addItem() {
-  const items = loadItems();
-  items.push({ title: 'Nova aquisição', desc: 'Descrição breve', url: 'https://' });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  renderEditItems();
-}
-
-function removeItem(i) {
-  const items = loadItems();
-  items.splice(i, 1);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  renderEditItems(); renderList();
-}
-
-function saveItems() {
-  const items = loadItems();
-  const saved = items.map((_, i) => ({
-    title: document.getElementById(`t-title-${i}`).value,
-    desc: document.getElementById(`t-desc-${i}`).value,
-    url: document.getElementById(`t-url-${i}`).value
-  }));
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
-  renderList();
-  const msg = document.getElementById('save-msg');
-  msg.style.display = 'block';
-  setTimeout(() => msg.style.display = 'none', 3000);
-}
-
-renderList();
+document.addEventListener('DOMContentLoaded', renderList);
 </script>
-<script src="loader.js"></script>
 </body>
 </html>
