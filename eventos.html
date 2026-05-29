@@ -62,7 +62,7 @@ async function renderList() {
     let htmlFinal = ''; let contadorItem = 0;
 
     for (let i = 1; i < linhas.length; i++) {
-      const cols = líneas[i]; if (cols.length < 5) continue;
+      const cols = linhas[i]; if (cols.length < 5) continue;
       const categoriaPlanilha = cols[0] ? cols[0].toLowerCase().trim() : '';
       const titulo = cols[1] || ''; const descricao = cols[3] || ''; const url = cols[4] || '';
 
