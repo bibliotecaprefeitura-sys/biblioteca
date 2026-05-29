@@ -26,24 +26,7 @@
 
   <div class="links" id="items-list"></div>
 
-  <button class="admin-toggle" onclick="toggleAdmin()">⚙️ Área administrativa</button>
-
-  <div class="admin-panel" id="admin-panel">
-    <div id="pw-screen" class="pw-screen">
-      <p>Digite a senha para acessar o painel de edição</p>
-      <input type="password" class="pw-input" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter') checkPw()">
-      <br>
-      <button class="pw-btn" onclick="checkPw()">Entrar</button>
-      <p class="pw-error" id="pw-error">Senha incorreta.</p>
-    </div>
-    <div id="edit-screen" style="display:none">
-      <div class="admin-title"><i class="ti ti-edit" aria-hidden="true"></i> Editar Treinamentos</div>
-      <div id="edit-items"></div>
-      <button class="add-btn" onclick="addItem()">+ Adicionar treinamento</button>
-      <button class="save-btn" onclick="saveItems()">Salvar alterações</button>
-      <p class="save-msg" id="save-msg">✓ Salvo com sucesso!</p>
-    </div>
-  </div>
+ <a href="https://docs.google.com/spreadsheets/d/1DMFrXCLhj_OoFkSRFQXv2yPt2VOsgonZjiszIRFYK24/edit" target="_blank" class="admin-toggle" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">⚙️ Acessar Planilha de Dados</a>
 
   <footer class="footer" style="margin-top:2rem">
     Biblioteca da PUSP-SC · Universidade de São Paulo · São Carlos
