@@ -53,12 +53,39 @@
   
 <script>
 const SHEET_ID = '1DMFrXCLhj_OoFkSRFQXv2yPt2VOsgonZjiszIRFYK24';
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+// Usamos o formato CSV oficial do Google, que é muito mais leve, rápido e não bloqueia na USP
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
 const ICON_COLORS = ['ci-blue','ci-green','ci-teal','ci-gold','ci-coral','ci-purple'];
 const ICONS = ['ti-player-play','ti-file-text','ti-search','ti-database','ti-chart-bar','ti-bookmark'];
 
 const CATEGORIA_PAGINA = 'treinamentos'; 
+
+// Função auxiliar para processar linhas de texto CSV corretamente
+function parseCSV(text) {
+  let lines = [];
+  let row = [""];
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    let c = text[i];
+    let next = text[i+1];
+    if (c === '"') {
+      if (inQuotes && next === '"') { row[row.length - 1] += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (c === ',' && !inQuotes) {
+      row.push('');
+    } else if ((c === '\r' || c === '\n') && !inQuotes) {
+      if (c === '\r' && next === '\n') { i++; }
+      lines.push(row);
+      row = [''];
+    } else {
+      row[row.length - 1] += c;
+    }
+  }
+  if (row.length > 1 || row[0] !== '') lines.push(row);
+  return lines;
+}
 
 async function renderList() {
   const list = document.getElementById('items-list');
@@ -68,21 +95,22 @@ async function renderList() {
     const resposta = await fetch(SHEET_URL);
     const texto = await resposta.text();
     
-    const jsonDados = JSON.parse(texto.substr(47).slice(0, -3));
-    const linhas = jsonDados.table.rows;
+    // Processa o documento CSV obtido diretamente do Google Sheets
+    const linhas = parseCSV(texto);
 
     let htmlFinal = '';
     let contadorItem = 0;
 
-    linhas.forEach(linha => {
-      const cols = linha.c;
-      if (!cols || cols.length < 5) return;
+    // Ignora a primeira linha (cabeçalho)
+    for (let i = 1; i < linhas.length; i++) {
+      const cols = linhas[i];
+      if (cols.length < 5) continue;
 
-      const categoriaPlanilha = cols[0] ? cols[0].v.toLowerCase().trim() : '';
-      const titulo = cols[1] ? cols[1].v : '';
-      const autor = cols[2] ? cols[2].v : '';
-      const descricao = cols[3] ? cols[3].v : '';
-      const url = cols[4] ? cols[4].v : '';
+      const categoriaPlanilha = cols[0] ? cols[0].toLowerCase().trim() : '';
+      const titulo = cols[1] || '';
+      const autor = cols[2] || '';
+      const descricao = cols[3] || '';
+      const url = cols[4] || '';
 
       if (categoriaPlanilha === CATEGORIA_PAGINA) {
         const corIcone = ICON_COLORS[contadorItem % ICON_COLORS.length];
@@ -90,7 +118,7 @@ async function renderList() {
         const classeDestaque = contadorItem === 0 ? ' featured' : '';
 
         htmlFinal += `
-          <a href="${url}" class="link-card${classeDestaque}" target="_blank" rel="noopener">
+          <a href="${url.trim()}" class="link-card${classeDestaque}" target="_blank" rel="noopener">
             <div class="card-icon ${corIcone}">
               <i class="ti ${classeIcone}" aria-hidden="true"></i>
             </div>
@@ -103,7 +131,7 @@ async function renderList() {
         `;
         contadorItem++;
       }
-    });
+    }
 
     if (contadorItem > 0) {
       list.innerHTML = htmlFinal;
@@ -112,7 +140,7 @@ async function renderList() {
     }
 
   } catch (erro) {
-    console.error("Erro ao puxar dados da planilha Google Sheets:", erro);
+    console.error("Erro ao puxar dados da planilha:", erro);
     list.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:14px;padding:2rem 0">Erro ao carregar os dados em tempo real.</p>';
   }
 }
