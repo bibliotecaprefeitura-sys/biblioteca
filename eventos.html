@@ -64,20 +64,21 @@ async function renderList() {
     for (let i = 1; i < linhas.length; i++) {
       const cols = linhas[i]; if (cols.length < 5) continue;
       const categoriaPlanilha = cols[0] ? cols[0].toLowerCase().trim() : '';
-      const titulo = cols[1] || ''; const descricao = cols[3] || ''; const url = cols[4] || '';
+      const titulo = cols[1] || ''; const dataEvent = cols[2] || ''; const descricao = cols[3] || ''; const url = cols[4] || '';
 
       if (categoriaPlanilha === CATEGORIA_PAGINA) {
-        const corIcone = ICON_COLORS[contadorItem % ICON_COLORS.length];
+        const colorIcon = ICON_COLORS[contadorItem % ICON_COLORS.length];
         const classeIcone = ICONS[contadorItem % ICONS.length];
         const classeDestaque = contadorItem === 0 ? ' featured' : '';
 
         htmlFinal += `
           <a href="${url.trim()}" class="link-card${classeDestaque}" target="_blank" rel="noopener">
-            <div class="card-icon ${corIcone}">
+            <div class="card-icon ${colorIcon}">
               <i class="ti ${classeIcone}" aria-hidden="true"></i>
             </div>
             <div class="card-body">
               <div class="card-title">${titulo}</div>
+              ${dataEvent ? `<div class="card-author" style="font-size:12px; color:var(--text-muted); margin-bottom:4px;"><i class="ti ti-calendar-time" style="font-size:14px; vertical-align:middle;"></i> Data: ${dataEvent}</div>` : ''}
               <div class="card-desc">${descricao}</div>
             </div>
             <i class="ti ti-arrow-right card-arrow" aria-hidden="true"></i>
