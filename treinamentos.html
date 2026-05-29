@@ -58,7 +58,6 @@ const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tq
 const ICON_COLORS = ['ci-blue','ci-green','ci-teal','ci-gold','ci-coral','ci-purple'];
 const ICONS = ['ti-player-play','ti-file-text','ti-search','ti-database','ti-chart-bar','ti-bookmark'];
 
-// Força a página a saber qual é a categoria dela de forma fixa
 const CATEGORIA_PAGINA = 'treinamentos'; 
 
 async function renderList() {
@@ -69,7 +68,6 @@ async function renderList() {
     const resposta = await fetch(SHEET_URL);
     const texto = await resposta.text();
     
-    // Converte a resposta do Google Planilhas em JSON válido
     const jsonDados = JSON.parse(texto.substr(47).slice(0, -3));
     const linhas = jsonDados.table.rows;
 
@@ -86,7 +84,6 @@ async function renderList() {
       const descricao = cols[3] ? cols[3].v : '';
       const url = cols[4] ? cols[4].v : '';
 
-      // Filtra apenas os links desta página
       if (categoriaPlanilha === CATEGORIA_PAGINA) {
         const corIcone = ICON_COLORS[contadorItem % ICON_COLORS.length];
         const classeIcone = ICONS[contadorItem % ICONS.length];
@@ -120,7 +117,6 @@ async function renderList() {
   }
 }
 
-// Executa a função automaticamente ao abrir a página
 document.addEventListener('DOMContentLoaded', renderList);
 </script>
 </body>
